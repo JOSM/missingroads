@@ -23,26 +23,26 @@ import java.awt.Composite;
 /**
  *
  * @author Beata
- * @version $Revision: 44 $
+ * @version $Revision: 52 $
  */
 final class Constants {
 
     /* composite constants */
     static final Composite NORMAL_COMPOSITE = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1F);
-    static final Composite TILE_COMPOSITE = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.40F);
-    static final Composite TILE_SEL_COMPOSITE = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.70F);
+    static final Composite TILE_COMPOSITE = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.50F);
+    static final Composite TILE_SEL_COMPOSITE = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.80F);
 
     /* cluster color */
     static final Color CLUSTER_COLOR = new Color(176, 23, 31);
 
     /* tile colors */
-    static final Color OPEN_COLOR = new Color(255, 99, 71);
+    static final Color OPEN_COLOR = new Color(70, 130, 180);
     static final Color SOLVED_COLOR = new Color(60, 179, 113);
-    static final Color INVALID_COLOR = new Color(70, 130, 180);
+    static final Color INVALID_COLOR = new Color(255, 99, 71);
 
     /* tile point colors */
-    static final Color ROAD_COLOR = new Color(85, 26, 139);
-    static final Color PARKING_COLOR = new Color(0, 0, 139);
+    static final Color ROAD_COLOR = new Color(180, 82, 205);
+    static final Color PARKING_COLOR = new Color(255, 255, 0);
     static final Color BOTH_COLOR = new Color(30, 30, 30);
 
     /* tile point radius */
