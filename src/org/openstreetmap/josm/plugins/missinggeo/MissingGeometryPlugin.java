@@ -15,6 +15,7 @@
  */
 package org.openstreetmap.josm.plugins.missinggeo;
 
+import java.awt.GraphicsEnvironment;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -217,9 +218,11 @@ implements CommentObserver, LayerChangeListener, MouseListener, PreferenceChange
     @Override
     public void mapFrameInitialized(final MapFrame oldMapFrame, final MapFrame newMapFrame) {
         if (Main.map != null) {
-            dialog = new MissingGeometryDetailsDialog();
-            newMapFrame.addToggleDialog(dialog);
-            dialog.getButton().addActionListener(new ToggleButtonActionListener());
+            if (!GraphicsEnvironment.isHeadless()) {
+                dialog = new MissingGeometryDetailsDialog();
+                newMapFrame.addToggleDialog(dialog);
+                dialog.getButton().addActionListener(new ToggleButtonActionListener());
+            }
             registerListeners();
             addLayer();
         }
@@ -310,9 +313,13 @@ implements CommentObserver, LayerChangeListener, MouseListener, PreferenceChange
     private void registerListeners() {
         NavigatableComponent.addZoomChangeListener(this);
         MapView.addLayerChangeListener(this);
-        Main.map.mapView.addMouseListener(this);
+        if (Main.isDisplayingMapView()) {
+            Main.map.mapView.addMouseListener(this);
+        }
         Main.pref.addPreferenceChangeListener(this);
-        dialog.registerCommentObserver(this);
+        if (dialog != null) {
+            dialog.registerCommentObserver(this);
+        }
     }
 
     private void retrieveComment(final Tile tile) {
