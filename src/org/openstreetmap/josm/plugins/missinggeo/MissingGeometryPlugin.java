@@ -88,7 +88,7 @@ implements CommentObserver, LayerChangeListener, MouseListener, PreferenceChange
 
         private void updateSelection(final DataSet result) {
             final Tile tile = layer.lastSelectedTile();
-            if (result != null) {
+            if (result != null && !GraphicsEnvironment.isHeadless()) {
                 if (!result.getClusters().isEmpty()) {
                     dialog.updateData(null, null);
                 } else if (tile != null) {
