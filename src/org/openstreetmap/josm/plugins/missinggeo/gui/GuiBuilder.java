@@ -28,6 +28,7 @@ import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -45,7 +46,7 @@ import org.openstreetmap.josm.Main;
  * Helper object, used for creating specific GUI elements.
  *
  * @author Beata
- * @version $Revision: 43 $
+ * @version $Revision: 58 $
  */
 public final class GuiBuilder {
 
@@ -125,6 +126,23 @@ public final class GuiBuilder {
     }
 
     /**
+     * Builds a new {@code JCheckBox} with the given arguments.
+     *
+     * @param text the text to be displayed
+     * @param actionCommand the actionCommand to be displayed
+     * @param backgroundColor the background color
+     * @return a {@code JCheckBox} object
+     */
+    public static JCheckBox buildCheckBox(final String text, final String actionCommand, final Color backgroundColor) {
+        final JCheckBox cbbox = new JCheckBox(text);
+        cbbox.setActionCommand(actionCommand);
+        cbbox.setBackground(backgroundColor);
+        cbbox.setFont(PLAIN_12);
+        cbbox.setFocusPainted(false);
+        return cbbox;
+    }
+
+    /**
      * Builds a new flow layout panel containing the given components.
      *
      * @param alignment defines the panel alignment
@@ -175,21 +193,21 @@ public final class GuiBuilder {
         return lbl;
     }
 
+
     /**
      * Builds a {@code JRadioButton} with the given arguments.
      *
      * @param text the text to be displayed
      * @param actionCommand the actionCommand to be displayed
-     * @param font the font to be used
      * @param backgroundColor the background color
      * @return a {@code JRadioButton}
      */
-    public static JRadioButton buildRadioButton(final String text, final String actionCommand, final Font font,
+    public static JRadioButton buildRadioButton(final String text, final String actionCommand,
             final Color backgroundColor) {
         final JRadioButton radioButton = new JRadioButton(text);
         radioButton.setActionCommand(actionCommand);
         radioButton.setBackground(backgroundColor);
-        radioButton.setFont(font);
+        radioButton.setFont(PLAIN_12);
         radioButton.setFocusable(false);
         return radioButton;
     }

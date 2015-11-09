@@ -79,10 +79,11 @@
 			<zipfileset src="${plugin.lib.dir}/gson-2.2.4.jar" />
 			<zipfileset src="${plugin.lib.dir}/commons-io-2.4.jar" />
 			<manifest>
-				<attribute name="Author" value="skobbler" />
+				<attribute name="Author" value="telenav" />
 				<attribute name="Plugin-Class" value="org.openstreetmap.josm.plugins.missinggeo.MissingGeometryPlugin" />
 				<attribute name="Plugin-Date" value="${version.entry.commit.date}" />
-				<attribute name="Plugin-Description" value="The MissingGeometryPlugin is helping you by pointing at missing roads and missing parking areas in OSM." />
+				<attribute name="Plugin-Description" value="The MissingRoads plugin is helping you by pointing at missing roads and missing parking areas in OSM." />
+				<attribute name="Plugin-Link" value="https://wiki.openstreetmap.org/wiki/JOSM/Plugins/MissingRoads" />
 				<attribute name="Plugin-Icon" value="images/missinggeo_logo_50x50.png" />
 				<attribute name="Plugin-Mainversion" value="1" />
 				<attribute name="Plugin-Version" value="${build-label}" />

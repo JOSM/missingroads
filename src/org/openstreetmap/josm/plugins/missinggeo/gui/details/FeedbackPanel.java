@@ -34,16 +34,21 @@ import org.openstreetmap.josm.tools.OpenBrowser;
 
 
 /**
+ * Builds a panel for displaying the feedback information.
  *
  * @author Beata
- * @version $Revision: 46 $
+ * @version $Revision: 58 $
  */
 class FeedbackPanel extends JPanel implements HyperlinkListener {
 
     private static final long serialVersionUID = -2101183058945962229L;
     private static final Dimension DIM = new Dimension(150, 100);
 
-    public FeedbackPanel() {
+
+    /**
+     * Builds a new panel.
+     */
+    FeedbackPanel() {
         setLayout(new BorderLayout());
         setName(GuiConfig.getInstance().getPnlFeedbackTitle());
         final JEditorPane txtHelp = new JEditorPane("text/html", "");

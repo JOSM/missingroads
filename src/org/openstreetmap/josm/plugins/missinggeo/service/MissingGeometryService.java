@@ -37,7 +37,7 @@ import com.google.gson.JsonSyntaxException;
  * Executes the operations of the 'MissingGeometryService'.
  *
  * @author Beata
- * @version $Revision: 20 $
+ * @version $Revision: 69 $
  */
 public class MissingGeometryService {
 
@@ -79,6 +79,7 @@ public class MissingGeometryService {
             throws MissingGeometryServiceException {
         final String url = new HttpQueryBuilder(tileX, tileY).build(Constants.RETRIEVE_COMMENTS.toString());
         final Root root = executeGet(url);
+        verifyResponseStatus(root);
         return root.getComments();
     }
 
@@ -95,6 +96,7 @@ public class MissingGeometryService {
             throws MissingGeometryServiceException {
         final String url = new HttpQueryBuilder(bbox, filter, zoom).build(Constants.SEARCH.toString());
         final Root root = executeGet(url);
+        verifyResponseStatus(root);
         return new DataSet(root.getClusters(), root.getTiles());
     }
 

@@ -15,6 +15,7 @@
  */
 package org.openstreetmap.josm.plugins.missinggeo.argument;
 
+import java.util.List;
 import org.openstreetmap.josm.plugins.missinggeo.entity.Status;
 import org.openstreetmap.josm.plugins.missinggeo.entity.Type;
 
@@ -23,7 +24,7 @@ import org.openstreetmap.josm.plugins.missinggeo.entity.Type;
  * Defines the filters that can be applied when searching for tiles.
  *
  * @author Beata
- * @version $Revision: 8 $
+ * @version $Revision: 57 $
  */
 public class TileFilter extends SearchFilter {
 
@@ -37,8 +38,8 @@ public class TileFilter extends SearchFilter {
      * @param type a {@code Type} defines the tile's type
      * @param numberOfTrips the number of trips passing the tile
      */
-    public TileFilter(final Status status, final Type type, final Integer numberOfTrips) {
-        super(status, type);
+    public TileFilter(final Status status, final List<Type> types, final Integer numberOfTrips) {
+        super(status, types);
         this.numberOfTrips = numberOfTrips;
     }
 

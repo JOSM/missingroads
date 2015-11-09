@@ -15,6 +15,7 @@
  */
 package org.openstreetmap.josm.plugins.missinggeo.argument;
 
+import java.util.List;
 import org.openstreetmap.josm.plugins.missinggeo.entity.Status;
 import org.openstreetmap.josm.plugins.missinggeo.entity.Type;
 
@@ -23,7 +24,7 @@ import org.openstreetmap.josm.plugins.missinggeo.entity.Type;
  * Defines the search filter that can be applied when searching for clusters.
  *
  * @author Beata
- * @version $Revision: 8 $
+ * @version $Revision: 57 $
  */
 public class ClusterFilter extends SearchFilter {
 
@@ -39,8 +40,8 @@ public class ClusterFilter extends SearchFilter {
      * @param status a {@code Type} object represents the type characterizing the cluster
      * @param numberOfPoints the number of points belonging to the cluster
      */
-    public ClusterFilter(final Status status, final Type type, final Integer numberOfPoints) {
-        super(status, type);
+    public ClusterFilter(final Status status, final List<Type> types, final Integer numberOfPoints) {
+        super(status, types);
         this.numberOfPoints = numberOfPoints;
     }
 

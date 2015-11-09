@@ -16,9 +16,11 @@
 package org.openstreetmap.josm.plugins.missinggeo.gui.details.filter;
 
 import static org.openstreetmap.josm.plugins.missinggeo.gui.GuiBuilder.BOLD_12;
-import static org.openstreetmap.josm.plugins.missinggeo.gui.GuiBuilder.PLAIN_12;
 import java.awt.Color;
 import java.awt.GridBagLayout;
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
@@ -42,7 +44,7 @@ import org.openstreetmap.josm.plugins.missinggeo.util.pref.PreferenceManager;
  *
  *
  * @author Beata
- * @version $Revision: 43 $
+ * @version $Revision: 57 $
  */
 class FilterPanel extends JPanel {
 
@@ -52,10 +54,9 @@ class FilterPanel extends JPanel {
     private JRadioButton rbStatusSolved;
     private JRadioButton rbStatusInvalid;
     private RadioButtonGroup btnGroupStatus;
-    private JRadioButton rbTypeParking;
-    private JRadioButton rbTypeRoad;
-    private JRadioButton rbTypeBoth;
-    private RadioButtonGroup btnGroupType;
+    private JCheckBox cbTypeParking;
+    private JCheckBox cbTypeRoad;
+    private JCheckBox cbTypeBoth;
     private JTextField txtCount;
 
     private final boolean tileFilter;
@@ -72,13 +73,13 @@ class FilterPanel extends JPanel {
         if (tileFilter) {
             final TileFilter filter = (TileFilter) PreferenceManager.getInstance().loadSearchFilter(TileFilter.class);
             addStatusFilter(filter.getStatus());
-            addTypeFilter(filter.getType());
+            addTypesFilter(filter.getTypes());
             addCountFilter(GuiConfig.getInstance().getLblTripCount(), filter.getNumberOfTrips());
         } else {
             final ClusterFilter filter =
                     (ClusterFilter) PreferenceManager.getInstance().loadSearchFilter(ClusterFilter.class);
             addStatusFilter(filter.getStatus());
-            addTypeFilter(filter.getType());
+            addTypesFilter(filter.getTypes());
             addCountFilter(GuiConfig.getInstance().getLblPointCount(), filter.getNumberOfPoints());
         }
     }
@@ -94,12 +95,11 @@ class FilterPanel extends JPanel {
     private void addStatusFilter(final Status status) {
         add(GuiBuilder.buildLabel(GuiConfig.getInstance().getDlgFilterLblStatus(), BOLD_12, null),
                 Constraints.LBL_STATUS);
-        rbStatusOpen =
-                GuiBuilder.buildRadioButton(Status.OPEN.toString(), Status.OPEN.toString(), PLAIN_12, getBackground());
-        rbStatusSolved = GuiBuilder.buildRadioButton(Status.SOLVED.toString(), Status.SOLVED.toString(), PLAIN_12,
-                getBackground());
-        rbStatusInvalid = GuiBuilder.buildRadioButton(Status.INVALID.toString(), Status.INVALID.toString(), PLAIN_12,
-                getBackground());
+        rbStatusOpen = GuiBuilder.buildRadioButton(Status.OPEN.toString(), Status.OPEN.toString(), getBackground());
+        rbStatusSolved =
+                GuiBuilder.buildRadioButton(Status.SOLVED.toString(), Status.SOLVED.toString(), getBackground());
+        rbStatusInvalid =
+                GuiBuilder.buildRadioButton(Status.INVALID.toString(), Status.INVALID.toString(), getBackground());
         btnGroupStatus = GuiBuilder.buildButtonGroup(rbStatusOpen, rbStatusSolved, rbStatusInvalid);
         selectStatus(status);
         add(rbStatusOpen, Constraints.RB_OPEN);
@@ -107,18 +107,29 @@ class FilterPanel extends JPanel {
         add(rbStatusInvalid, Constraints.RB_INVALID);
     }
 
-    private void addTypeFilter(final Type type) {
+    private void addTypesFilter(final List<Type> types) {
         add(GuiBuilder.buildLabel(GuiConfig.getInstance().getDlgFilterLblType(), BOLD_12, null), Constraints.LBL_TYPE);
-        rbTypeParking = GuiBuilder.buildRadioButton(Type.PARKING.displayValue(), Type.PARKING.name(), PLAIN_12,
-                getBackground());
-        rbTypeRoad = GuiBuilder.buildRadioButton(Type.ROAD.displayValue(), Type.ROAD.name(), PLAIN_12, getBackground());
-        rbTypeBoth = GuiBuilder.buildRadioButton(Type.BOTH.displayValue(), Type.BOTH.name(), PLAIN_12,
-                getBackground());
-        btnGroupType = GuiBuilder.buildButtonGroup(rbTypeParking, rbTypeRoad, rbTypeBoth);
-        selectType(type);
-        add(rbTypeParking, Constraints.RB_PARKING);
-        add(rbTypeRoad, Constraints.RB_ROAD);
-        add(rbTypeBoth, Constraints.RB_BOTH);
+        cbTypeParking = GuiBuilder.buildCheckBox(Type.PARKING.displayValue(), Type.PARKING.name(), getBackground());
+        cbTypeRoad = GuiBuilder.buildCheckBox(Type.ROAD.displayValue(), Type.ROAD.name(), getBackground());
+        cbTypeBoth = GuiBuilder.buildCheckBox(Type.BOTH.displayValue(), Type.BOTH.name(), getBackground());
+        selectTypes(types);
+        add(cbTypeParking, Constraints.RB_PARKING);
+        add(cbTypeRoad, Constraints.RB_ROAD);
+        add(cbTypeBoth, Constraints.RB_BOTH);
+    }
+
+    private List<Type> selectedTypes() {
+        final List<Type> types = new ArrayList<>();
+        if (cbTypeRoad.isSelected()) {
+            types.add(Type.ROAD);
+        }
+        if (cbTypeParking.isSelected()) {
+            types.add(Type.PARKING);
+        }
+        if (cbTypeBoth.isSelected()) {
+            types.add(Type.BOTH);
+        }
+        return types;
     }
 
     private void selectStatus(final Status status) {
@@ -139,21 +150,18 @@ class FilterPanel extends JPanel {
         }
     }
 
-    private void selectType(final Type type) {
-        if (type != null) {
-            switch (type) {
-                case PARKING:
-                    rbTypeParking.setSelected(true);
-                    break;
-                case ROAD:
-                    rbTypeRoad.setSelected(true);
-                    break;
-                default:
-                    rbTypeBoth.setSelected(true);
-                    break;
-            }
+    private void selectTypes(final List<Type> types) {
+        if (types != null && !types.isEmpty()) {
+            boolean selected = types.contains(Type.ROAD);
+            cbTypeRoad.setSelected(selected);
+            selected = types.contains(Type.PARKING);
+            cbTypeParking.setSelected(selected);
+            selected = types.contains(Type.BOTH);
+            cbTypeBoth.setSelected(selected);
         } else {
-            btnGroupType.clearSelection();
+            cbTypeRoad.setSelected(false);
+            cbTypeParking.setSelected(false);
+            cbTypeBoth.setSelected(false);
         }
     }
 
@@ -162,19 +170,19 @@ class FilterPanel extends JPanel {
      */
     void resetFilters() {
         Status status = null;
-        Type type = null;
+        List<Type> types = null;
         Integer count = null;
         if (tileFilter) {
             status = TileFilter.DEFAULT.getStatus();
-            type = TileFilter.DEFAULT.getType();
+            types = TileFilter.DEFAULT.getTypes();
             count = TileFilter.DEFAULT.getNumberOfTrips();
         } else {
             status = ClusterFilter.DEFAULT.getStatus();
-            type = ClusterFilter.DEFAULT.getType();
+            types = ClusterFilter.DEFAULT.getTypes();
             count = ClusterFilter.DEFAULT.getNumberOfPoints();
         }
         selectStatus(status);
-        selectType(type);
+        selectTypes(types);
         final String txt = count != null ? count.toString() : "";
         txtCount.setText(txt);
         txtCount.setBackground(Color.white);
@@ -189,19 +197,16 @@ class FilterPanel extends JPanel {
         SearchFilter filter = null;
         if (txtCount.getInputVerifier().verify(txtCount)) {
             Status status = null;
-            Type type = null;
             if (btnGroupStatus.getSelection() != null) {
                 status = Status.valueOf(btnGroupStatus.getSelection().getActionCommand());
             }
             final String countStr = txtCount.getText().trim();
             final Integer count = countStr.isEmpty() ? null : Integer.parseInt(countStr);
-            if (btnGroupType.getSelection() != null) {
-                type = Type.valueOf(btnGroupType.getSelection().getActionCommand());
-            }
+            final List<Type> types = selectedTypes();
             if (tileFilter) {
-                filter = new TileFilter(status, type, count);
+                filter = new TileFilter(status, types, count);
             } else {
-                filter = new ClusterFilter(status, type, count);
+                filter = new ClusterFilter(status, types, count);
             }
         }
         return filter;

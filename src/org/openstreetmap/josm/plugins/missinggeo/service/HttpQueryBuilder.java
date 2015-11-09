@@ -15,6 +15,7 @@
  */
 package org.openstreetmap.josm.plugins.missinggeo.service;
 
+import java.util.List;
 import org.openstreetmap.josm.plugins.missinggeo.argument.BoundingBox;
 import org.openstreetmap.josm.plugins.missinggeo.argument.ClusterFilter;
 import org.openstreetmap.josm.plugins.missinggeo.argument.SearchFilter;
@@ -29,7 +30,7 @@ import org.openstreetmap.josm.plugins.missinggeo.util.http.HttpUtil;
  * Utility class, builds HTTP queries.
  *
  * @author Beata
- * @version $Revision: 37 $
+ * @version $Revision: 70 $
  */
 class HttpQueryBuilder {
 
@@ -59,10 +60,11 @@ class HttpQueryBuilder {
         addFormatFilter();
         addBoundingBoxFilter(bbox);
         addZoomFilter(zoom);
+        addClientFilter(zoom);
 
         if (filter != null) {
             addStatusFilter(filter.getStatus());
-            addTypeFilter(filter.getType());
+            addTypeFilter(filter.getTypes());
             if (filter instanceof TileFilter) {
                 // filters for only tile view
                 final TileFilter tileFilter = (TileFilter) filter;
@@ -122,14 +124,21 @@ class HttpQueryBuilder {
 
     }
 
-    private void addTypeFilter(final Type type) {
-        if (type != null) {
-            query.append(AND).append(Constants.TYPE.toString()).append(EQ).append(HttpUtil.utf8Encode(type.name()));
+    private void addTypeFilter(final List<Type> types) {
+        if (types != null) {
+            query.append(AND).append(Constants.TYPE.toString()).append(EQ);
+            query.append(HttpUtil.utf8Encode(types));
         }
     }
 
     private void addZoomFilter(final int zoom) {
         query.append(AND).append(Constants.ZOOM.toString()).append(EQ).append(zoom);
+    }
+
+    private void addClientFilter(final int zoom) {
+        if (zoom <= Config.getInstance().getMaxClusterZoom()) {
+            query.append(AND).append(Constants.CLIENT.toString()).append(EQ).append(Constants.CLIENT_VAL.toString());
+        }
     }
 
     /**

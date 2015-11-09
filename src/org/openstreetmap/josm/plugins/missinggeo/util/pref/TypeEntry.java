@@ -15,22 +15,30 @@
  */
 package org.openstreetmap.josm.plugins.missinggeo.util.pref;
 
+import org.openstreetmap.josm.data.Preferences.pref;
+import org.openstreetmap.josm.plugins.missinggeo.entity.Type;
+
 
 /**
+ * Preference entry corresponding to {@code Type}.
  *
  * @author Beata
- * @version $Revision: 8 $
+ * @version $Revision: 61 $
  */
-public final class Keys {
+public class TypeEntry {
 
-    static final String ERROR_SUPPRESS = "missingGeometry.error.suppress";
-    static final String OSM_USERNAME = "osm-server.username";
+    // preference entities must be declared public, otherwise JOSM preference loaded does not work!
 
-    static final String STATUS = "missingGeometry.filter.status";
-    static final String TYPE = "missingGeometry.filter.type";
-    static final String NO_POINTS = "missingGeometry.filter.noPoints";
-    static final String NO_TRIPS = "missingGeometry.filter.noTrips";
-    public static final String FILTERS_CHANGED = "missingGeometry.filter.changed";
+    @pref
+    private String name;
 
-    private Keys() {}
+    public TypeEntry() {}
+
+    public TypeEntry(final Type type) {
+        this.name = type.name();
+    }
+
+    public String getName() {
+        return name;
+    }
 }

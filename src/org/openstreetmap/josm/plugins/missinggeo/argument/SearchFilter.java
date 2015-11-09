@@ -15,6 +15,7 @@
  */
 package org.openstreetmap.josm.plugins.missinggeo.argument;
 
+import java.util.List;
 import org.openstreetmap.josm.plugins.missinggeo.entity.Status;
 import org.openstreetmap.josm.plugins.missinggeo.entity.Type;
 
@@ -23,12 +24,12 @@ import org.openstreetmap.josm.plugins.missinggeo.entity.Type;
  * Defines a default search filter, that can be applied to every 'search' method call.
  *
  * @author Beata
- * @version $Revision: 8 $
+ * @version $Revision: 57 $
  */
 public class SearchFilter {
 
     private final Status status;
-    private final Type type;
+    private final List<Type> types;
 
 
     /**
@@ -37,16 +38,16 @@ public class SearchFilter {
      * @param status a {@code Status} object
      * @param type a {@code Type} object
      */
-    public SearchFilter(final Status status, final Type type) {
+    public SearchFilter(final Status status, final List<Type> types) {
         this.status = status;
-        this.type = type;
+        this.types = types;
     }
 
     public Status getStatus() {
         return status;
     }
 
-    public Type getType() {
-        return type;
+    public List<Type> getTypes() {
+        return types;
     }
 }

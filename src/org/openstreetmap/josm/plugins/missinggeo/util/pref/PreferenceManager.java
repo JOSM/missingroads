@@ -15,6 +15,8 @@
  */
 package org.openstreetmap.josm.plugins.missinggeo.util.pref;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.plugins.missinggeo.argument.ClusterFilter;
 import org.openstreetmap.josm.plugins.missinggeo.argument.SearchFilter;
@@ -29,7 +31,7 @@ import org.openstreetmap.josm.plugins.missinggeo.entity.Type;
  * class. Values saved in this global file, can be accessed also after a JOSM restart.
  *
  * @author Beata
- * @version $Revision: 35 $
+ * @version $Revision: 58 $
  */
 public final class PreferenceManager {
 
@@ -69,20 +71,31 @@ public final class PreferenceManager {
      */
     public <T extends SearchFilter> SearchFilter loadSearchFilter(final Class<T> filterType) {
         final Status status = loadStatusFilter();
-        final String typeStr = Main.pref.get(Keys.TYPE);
-        final Type type = typeStr != null && !typeStr.isEmpty() ? Type.valueOf(typeStr) : null;
+        final List<TypeEntry> entries = Main.pref.getListOfStructs(Keys.TYPE, TypeEntry.class);
+        List<Type> types = null;
+        if (entries != null && !entries.isEmpty()) {
+            types = new ArrayList<>();
+            for (final TypeEntry entry : entries) {
+                types.add(Type.valueOf(entry.getName()));
+            }
+        }
         SearchFilter filter = null;
         if (filterType.isAssignableFrom(TileFilter.class)) {
             final Integer numberOfTrips = loadIntValue(Keys.NO_TRIPS);
-            filter = new TileFilter(status, type, numberOfTrips);
+            filter = new TileFilter(status, types, numberOfTrips);
         } else {
             // cluster filter
             final Integer numberOfPoints = loadIntValue(Keys.NO_POINTS);
-            filter = new ClusterFilter(status, type, numberOfPoints);
+            filter = new ClusterFilter(status, types, numberOfPoints);
         }
         return filter;
     }
 
+    /**
+     * Loads the currently set status filter.
+     *
+     * @return a {@code Status}
+     */
     public Status loadStatusFilter() {
         final String statusStr = Main.pref.get(Keys.STATUS);
         return statusStr != null && !statusStr.isEmpty() ? Status.valueOf(statusStr) : null;
@@ -123,11 +136,21 @@ public final class PreferenceManager {
      */
     public void saveSearchFilter(final SearchFilter filter) {
         if (filter != null) {
+            // status
             final String status = filter.getStatus() != null ? filter.getStatus().name() : "";
             Main.pref.put(Keys.STATUS, status);
-            final String type = filter.getType() != null ? filter.getType().name() : "";
-            Main.pref.put(Keys.TYPE, type);
+
+            // type
+            final List<TypeEntry> entries = new ArrayList<TypeEntry>();
+            if (filter.getTypes() != null) {
+                for (final Type type : filter.getTypes()) {
+                    entries.add(new TypeEntry(type));
+                }
+            }
+            Main.pref.putListOfStructs(Keys.TYPE, entries, TypeEntry.class);
+
             if (filter instanceof TileFilter) {
+                // tile filter
                 final TileFilter tileFilter = (TileFilter) filter;
                 final String numberOfTrips =
                         tileFilter.getNumberOfTrips() != null ? tileFilter.getNumberOfTrips().toString() : "";

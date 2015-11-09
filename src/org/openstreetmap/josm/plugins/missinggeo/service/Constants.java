@@ -19,7 +19,7 @@ package org.openstreetmap.josm.plugins.missinggeo.service;
 /**
  *
  * @author Beata
- * @version $Revision: 6 $
+ * @version $Revision: 70 $
  */
 enum Constants {
 
@@ -29,6 +29,14 @@ enum Constants {
         @Override
         public String toString() {
             return "json";
+        }
+    },
+    CLIENT,
+    CLIENT_VAL() {
+
+        @Override
+        public String toString() {
+            return "JOSM";
         }
     },
     SEARCH,

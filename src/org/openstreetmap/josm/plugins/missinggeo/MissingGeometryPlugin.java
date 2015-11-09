@@ -56,10 +56,10 @@ import org.openstreetmap.josm.plugins.missinggeo.util.pref.PreferenceManager;
  * Defines the main functionality of the missing geometry plugin.
  *
  * @author Beata
- * @version $Revision: 40 $
+ * @version $Revision: 74 $
  */
 public class MissingGeometryPlugin extends Plugin
-implements CommentObserver, LayerChangeListener, MouseListener, PreferenceChangedListener, ZoomChangeListener {
+        implements CommentObserver, LayerChangeListener, MouseListener, PreferenceChangedListener, ZoomChangeListener {
 
     private class DataUpdateThread implements Runnable {
 
@@ -71,17 +71,17 @@ implements CommentObserver, LayerChangeListener, MouseListener, PreferenceChange
                     final int zoom = Util.zoom();
                     final Class<? extends SearchFilter> filterType =
                             zoom > Config.getInstance().getMaxClusterZoom() ? TileFilter.class : ClusterFilter.class;
-                            final SearchFilter searchFilter = PreferenceManager.getInstance().loadSearchFilter(filterType);
-                            final DataSet result = ServiceHandler.getInstance().search(bbox, searchFilter, zoom);
-                            SwingUtilities.invokeLater(new Runnable() {
+                    final SearchFilter searchFilter = PreferenceManager.getInstance().loadSearchFilter(filterType);
+                    final DataSet result = ServiceHandler.getInstance().search(bbox, searchFilter, zoom);
+                    SwingUtilities.invokeLater(new Runnable() {
 
-                                @Override
-                                public void run() {
-                                    layer.setDataSet(result);
-                                    updateSelection(result);
-                                    Main.map.repaint();
-                                }
-                            });
+                        @Override
+                        public void run() {
+                            layer.setDataSet(result);
+                            updateSelection(result);
+                            Main.map.repaint();
+                        }
+                    });
                 }
             }
         }
@@ -175,7 +175,9 @@ implements CommentObserver, LayerChangeListener, MouseListener, PreferenceChange
                     final Status statusFilter = PreferenceManager.getInstance().loadStatusFilter();
                     if (comment.getStatus() == null || statusFilter == null || (comment.getStatus() == statusFilter)) {
                         final Tile tile = layer.lastSelectedTile();
-                        retrieveComment(tile);
+                        if (tile != null) {
+                            retrieveComment(tile);
+                        }
                     }
                 }
             });
@@ -255,26 +257,22 @@ implements CommentObserver, LayerChangeListener, MouseListener, PreferenceChange
 
     @Override
     public void mouseEntered(final MouseEvent event) {
-        // TODO Auto-generated method stub
-
+        // no logic for this action
     }
 
     @Override
     public void mouseExited(final MouseEvent event) {
-        // TODO Auto-generated method stub
-
+        // no logic for this action
     }
 
     @Override
     public void mousePressed(final MouseEvent event) {
-        // TODO Auto-generated method stub
-
+        // no logic for this action
     }
 
     @Override
     public void mouseReleased(final MouseEvent event) {
-        // TODO Auto-generated method stub
-
+        // no logic for this action
     }
 
     @Override

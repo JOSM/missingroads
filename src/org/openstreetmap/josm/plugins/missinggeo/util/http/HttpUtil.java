@@ -20,18 +20,34 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.List;
 import org.apache.commons.io.IOUtils;
+import org.openstreetmap.josm.plugins.missinggeo.entity.Type;
 
 
 /**
  * Contains HTTP communication utility methods.
  *
  * @author Beata
- * @version $Revision: 4 $
+ * @version $Revision: 58 $
  */
 public final class HttpUtil {
 
     public static final String ENCODING = "utf-8";
+
+    /**
+     * Encodes the given list of types using {@code HttpUtil#ENCODING} encoding.
+     *
+     * @param types a list of types
+     * @return the encoded parameters
+     */
+    public static String utf8Encode(final List<Type> types) {
+        final StringBuilder param = new StringBuilder();
+        for (final Type type : types) {
+            param.append(type.name()).append(",");
+        }
+        return utf8Encode(param.substring(0, param.length() - 1));
+    }
 
     /**
      * Encodes the given parameter using {@code HttpUtil#ENCODING} encoding.
