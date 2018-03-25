@@ -13,7 +13,14 @@
     <property name="plugin.description" value="The MissingRoads plugin is helping you by pointing at missing roads and missing parking areas in OSM."/>
     <property name="plugin.icon" value="images/missinggeo_logo_50x50.png"/>
     <property name="plugin.link" value="https://wiki.openstreetmap.org/wiki/JOSM/Plugins/MissingRoads"/>
+    <property name="plugin.requires" value="gson"/>
 
     <!-- ** include targets that all plugins have in common ** -->
     <import file="../build-common.xml"/>
+
+    <fileset id="plugin.requires.jars" dir="${plugin.dist.dir}">
+        <include name="gson.jar"/>
+    </fileset>
+
+    <property name="gson" location="${plugin.dist.dir}/gson.jar"/>
 </project>

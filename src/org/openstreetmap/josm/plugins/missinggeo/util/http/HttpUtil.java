@@ -15,15 +15,11 @@
  */
 package org.openstreetmap.josm.plugins.missinggeo.util.http;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.List;
-import org.apache.commons.io.IOUtils;
-import org.openstreetmap.josm.plugins.missinggeo.entity.Type;
 
+import org.openstreetmap.josm.plugins.missinggeo.entity.Type;
 
 /**
  * Contains HTTP communication utility methods.
@@ -63,25 +59,6 @@ public final class HttpUtil {
             /* should not appear since UTF-8 is a supported encoding */
         }
         return encodedContent;
-    }
-
-    /**
-     * Reads the content of the given input stream and returns in string format.
-     *
-     * @param input a {@code InputStream} the stream which content will be read
-     * @return a {@code String} containing the content of the input stream
-     * @throws IOException if the reading operation failed
-     */
-    static String readUtf8Content(final InputStream input) throws IOException {
-        String result;
-        try {
-            final StringWriter writer = new StringWriter();
-            IOUtils.copy(input, writer, ENCODING);
-            result = writer.toString();
-        } finally {
-            IOUtils.closeQuietly(input);
-        }
-        return result;
     }
 
     private HttpUtil() {}

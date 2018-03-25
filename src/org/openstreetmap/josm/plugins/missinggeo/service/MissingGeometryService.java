@@ -15,8 +15,12 @@
  */
 package org.openstreetmap.josm.plugins.missinggeo.service;
 
+import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
+
 import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.plugins.missinggeo.argument.BoundingBox;
 import org.openstreetmap.josm.plugins.missinggeo.argument.SearchFilter;
@@ -25,9 +29,8 @@ import org.openstreetmap.josm.plugins.missinggeo.entity.DataSet;
 import org.openstreetmap.josm.plugins.missinggeo.entity.Tile;
 import org.openstreetmap.josm.plugins.missinggeo.service.entity.CommentRoot;
 import org.openstreetmap.josm.plugins.missinggeo.service.entity.Root;
-import org.openstreetmap.josm.plugins.missinggeo.util.http.HttpConnector;
-import org.openstreetmap.josm.plugins.missinggeo.util.http.HttpConnectorException;
-import org.openstreetmap.josm.plugins.missinggeo.util.http.HttpMethod;
+import org.openstreetmap.josm.tools.HttpClient;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
@@ -115,8 +118,8 @@ public class MissingGeometryService {
     private Root executeGet(final String url) throws MissingGeometryServiceException {
         String response = null;
         try {
-            response = new HttpConnector(url, HttpMethod.GET).read();
-        } catch (final HttpConnectorException e) {
+            response = HttpClient.create(new URL(url)).connect().fetchContent();
+        } catch (final IOException e) {
             throw new MissingGeometryServiceException(e);
         }
         return buildRoot(response);
@@ -125,10 +128,11 @@ public class MissingGeometryService {
     private Root executePost(final String url, final String content) throws MissingGeometryServiceException {
         String response = null;
         try {
-            final HttpConnector connector = new HttpConnector(url, HttpMethod.POST);
-            connector.write(content);
-            response = connector.read();
-        } catch (final HttpConnectorException e) {
+            response = HttpClient.create(new URL(url), "POST")
+                                 .setRequestBody(content.getBytes(StandardCharsets.UTF_8))
+                                 .connect()
+                                 .fetchContent();
+        } catch (final IOException e) {
             throw new MissingGeometryServiceException(e);
         }
         return buildRoot(response);
