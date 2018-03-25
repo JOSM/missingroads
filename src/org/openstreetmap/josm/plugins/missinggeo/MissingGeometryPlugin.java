@@ -21,18 +21,20 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.List;
+
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
+
 import org.openstreetmap.josm.Main;
-import org.openstreetmap.josm.data.Preferences.PreferenceChangeEvent;
-import org.openstreetmap.josm.data.Preferences.PreferenceChangedListener;
 import org.openstreetmap.josm.gui.IconToggleButton;
+import org.openstreetmap.josm.gui.MainApplication;
 import org.openstreetmap.josm.gui.MapFrame;
-import org.openstreetmap.josm.gui.MapView;
-import org.openstreetmap.josm.gui.MapView.LayerChangeListener;
 import org.openstreetmap.josm.gui.NavigatableComponent;
 import org.openstreetmap.josm.gui.NavigatableComponent.ZoomChangeListener;
-import org.openstreetmap.josm.gui.layer.Layer;
+import org.openstreetmap.josm.gui.layer.LayerManager.LayerAddEvent;
+import org.openstreetmap.josm.gui.layer.LayerManager.LayerChangeListener;
+import org.openstreetmap.josm.gui.layer.LayerManager.LayerOrderChangeEvent;
+import org.openstreetmap.josm.gui.layer.LayerManager.LayerRemoveEvent;
 import org.openstreetmap.josm.plugins.Plugin;
 import org.openstreetmap.josm.plugins.PluginInformation;
 import org.openstreetmap.josm.plugins.missinggeo.argument.BoundingBox;
@@ -50,6 +52,8 @@ import org.openstreetmap.josm.plugins.missinggeo.util.Util;
 import org.openstreetmap.josm.plugins.missinggeo.util.cnf.Config;
 import org.openstreetmap.josm.plugins.missinggeo.util.pref.Keys;
 import org.openstreetmap.josm.plugins.missinggeo.util.pref.PreferenceManager;
+import org.openstreetmap.josm.spi.preferences.PreferenceChangeEvent;
+import org.openstreetmap.josm.spi.preferences.PreferenceChangedListener;
 
 
 /**
@@ -65,22 +69,18 @@ public class MissingGeometryPlugin extends Plugin
 
         @Override
         public void run() {
-            if (Main.map != null && Main.map.mapView != null) {
-                final BoundingBox bbox = Util.buildBBox(Main.map.mapView);
+            if (MainApplication.getMap() != null && MainApplication.getMap().mapView != null) {
+                final BoundingBox bbox = Util.buildBBox(MainApplication.getMap().mapView);
                 if (bbox != null) {
                     final int zoom = Util.zoom();
                     final Class<? extends SearchFilter> filterType =
                             zoom > Config.getInstance().getMaxClusterZoom() ? TileFilter.class : ClusterFilter.class;
                     final SearchFilter searchFilter = PreferenceManager.getInstance().loadSearchFilter(filterType);
                     final DataSet result = ServiceHandler.getInstance().search(bbox, searchFilter, zoom);
-                    SwingUtilities.invokeLater(new Runnable() {
-
-                        @Override
-                        public void run() {
-                            layer.setDataSet(result);
-                            updateSelection(result);
-                            Main.map.repaint();
-                        }
+                    SwingUtilities.invokeLater(() -> {
+                        layer.setDataSet(result);
+                        updateSelection(result);
+                        layer.invalidate();
                     });
                 }
             }
@@ -112,23 +112,19 @@ public class MissingGeometryPlugin extends Plugin
         @Override
         public void actionPerformed(final ActionEvent event) {
             if (event.getSource() instanceof IconToggleButton) {
-                SwingUtilities.invokeLater(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        final IconToggleButton btn = (IconToggleButton) event.getSource();
-                        if (btn.isSelected()) {
-                            dialog.setVisible(true);
-                            btn.setSelected(true);
-                        } else {
-                            dialog.setVisible(false);
-                            btn.setSelected(false);
-                            btn.setFocusable(false);
-                        }
-                        if (layer == null) {
-                            registerListeners();
-                            addLayer();
-                        }
+                SwingUtilities.invokeLater(() -> {
+                    final IconToggleButton btn = (IconToggleButton) event.getSource();
+                    if (btn.isSelected()) {
+                        dialog.setVisible(true);
+                        btn.setSelected(true);
+                    } else {
+                        dialog.setVisible(false);
+                        btn.setSelected(false);
+                        btn.setFocusable(false);
+                    }
+                    if (layer == null) {
+                        registerListeners();
+                        addLayer();
                     }
                 });
             }
@@ -155,7 +151,7 @@ public class MissingGeometryPlugin extends Plugin
     }
 
     @Override
-    public void activeLayerChange(final Layer layer1, final Layer layer2) {
+    public void layerOrderChanged(LayerOrderChangeEvent e) {
         // nothing to add here
     }
 
@@ -163,21 +159,17 @@ public class MissingGeometryPlugin extends Plugin
     public void createComment(final Comment comment) {
         final List<Tile> selectedTiles = layer.getSelectedTiles();
         if (!selectedTiles.isEmpty()) {
-            Main.worker.execute(new Runnable() {
-
-                @Override
-                public void run() {
-                    ServiceHandler.getInstance().comment(comment, selectedTiles);
-                    if (comment.getStatus() != null) {
-                        Main.worker.execute(new DataUpdateThread());
-                    }
-                    // reload data
-                    final Status statusFilter = PreferenceManager.getInstance().loadStatusFilter();
-                    if (comment.getStatus() == null || statusFilter == null || (comment.getStatus() == statusFilter)) {
-                        final Tile tile = layer.lastSelectedTile();
-                        if (tile != null) {
-                            retrieveComment(tile);
-                        }
+            MainApplication.worker.execute(() -> {
+                ServiceHandler.getInstance().comment(comment, selectedTiles);
+                if (comment.getStatus() != null) {
+                    MainApplication.worker.execute(new DataUpdateThread());
+                }
+                // reload data
+                final Status statusFilter = PreferenceManager.getInstance().loadStatusFilter();
+                if (comment.getStatus() == null || statusFilter == null || (comment.getStatus() == statusFilter)) {
+                    final Tile tile = layer.lastSelectedTile();
+                    if (tile != null) {
+                        retrieveComment(tile);
                     }
                 }
             });
@@ -185,41 +177,37 @@ public class MissingGeometryPlugin extends Plugin
     }
 
     @Override
-    public void layerAdded(final Layer newLayer) {
-        if (newLayer instanceof MissingGeometryLayer) {
+    public void layerAdded(final LayerAddEvent e) {
+        if (e.getAddedLayer() instanceof MissingGeometryLayer) {
             zoomChanged();
         }
     }
 
     @Override
-    public void layerRemoved(final Layer currentLayer) {
-        if (currentLayer instanceof MissingGeometryLayer) {
+    public void layerRemoving(final LayerRemoveEvent e) {
+        if (e.getRemovedLayer() instanceof MissingGeometryLayer) {
             NavigatableComponent.removeZoomChangeListener(this);
-            MapView.removeLayerChangeListener(this);
-            Main.map.mapView.removeMouseListener(this);
+            MainApplication.getLayerManager().removeLayerChangeListener(this);
+            MainApplication.getMap().mapView.removeMouseListener(this);
             Main.pref.removePreferenceChangeListener(this);
             PreferenceManager.getInstance().saveErrorSupressFlag(false);
 
             // remove toggle action
-            SwingUtilities.invokeLater(new Runnable() {
-
-                @Override
-                public void run() {
-                    if (Main.map != null) {
-                        Main.map.remove(dialog);
-                    }
-                    dialog.getButton().setSelected(false);
-                    dialog.setVisible(false);
-                    dialog.destroy();
-                    layer = null;
+            SwingUtilities.invokeLater(() -> {
+                if (MainApplication.getMap() != null) {
+                    MainApplication.getMap().remove(dialog);
                 }
+                dialog.getButton().setSelected(false);
+                dialog.setVisible(false);
+                dialog.destroy();
+                layer = null;
             });
         }
     }
 
     @Override
     public void mapFrameInitialized(final MapFrame oldMapFrame, final MapFrame newMapFrame) {
-        if (Main.map != null) {
+        if (MainApplication.getMap() != null) {
             if (!GraphicsEnvironment.isHeadless()) {
                 dialog = new MissingGeometryDetailsDialog();
                 newMapFrame.addToggleDialog(dialog);
@@ -234,20 +222,14 @@ public class MissingGeometryPlugin extends Plugin
     public void mouseClicked(final MouseEvent event) {
         final int zoom = Util.zoom();
         if ((zoom > Config.getInstance().getMaxClusterZoom())
-                && (Main.map.mapView.getActiveLayer() == layer && layer.isVisible())
+                && (MainApplication.getLayerManager().getActiveLayer() == layer && layer.isVisible())
                 && SwingUtilities.isLeftMouseButton(event)) {
             final boolean multiSelect = event.isShiftDown();
             final Tile selectedTile = layer.lastSelectedTile();
             final Tile tile = layer.nearbyTile(event.getPoint(), multiSelect);
             if (tile != null) {
                 if (!tile.equals(selectedTile)) {
-                    Main.worker.execute(new Runnable() {
-
-                        @Override
-                        public void run() {
-                            retrieveComment(tile);
-                        }
-                    });
+                    MainApplication.worker.execute(() -> retrieveComment(tile));
                 }
             } else if (!multiSelect) {
                 updateSelectedData(null, null);
@@ -279,7 +261,7 @@ public class MissingGeometryPlugin extends Plugin
     public void preferenceChanged(final PreferenceChangeEvent event) {
         if (event != null && (event.getNewValue() != null && !event.getNewValue().equals(event.getOldValue()))) {
             if (event.getKey().equals(Keys.FILTERS_CHANGED)) {
-                Main.worker.execute(new DataUpdateThread());
+                MainApplication.worker.execute(new DataUpdateThread());
             }
         }
     }
@@ -290,13 +272,7 @@ public class MissingGeometryPlugin extends Plugin
             if (zoomTimer != null && zoomTimer.isRunning()) {
                 zoomTimer.restart();
             } else {
-                zoomTimer = new Timer(Config.getInstance().getSearchDelay(), new ActionListener() {
-
-                    @Override
-                    public void actionPerformed(final ActionEvent e) {
-                        Main.worker.execute(new DataUpdateThread());
-                    }
-                });
+                zoomTimer = new Timer(Config.getInstance().getSearchDelay(), e -> MainApplication.worker.execute(new DataUpdateThread()));
                 zoomTimer.setRepeats(false);
                 zoomTimer.start();
             }
@@ -305,14 +281,14 @@ public class MissingGeometryPlugin extends Plugin
 
     private void addLayer() {
         layer = new MissingGeometryLayer();
-        Main.main.addLayer(layer);
+        MainApplication.getLayerManager().addLayer(layer);
     }
 
     private void registerListeners() {
         NavigatableComponent.addZoomChangeListener(this);
-        MapView.addLayerChangeListener(this);
-        if (Main.isDisplayingMapView()) {
-            Main.map.mapView.addMouseListener(this);
+        MainApplication.getLayerManager().addLayerChangeListener(this);
+        if (MainApplication.isDisplayingMapView()) {
+            MainApplication.getMap().mapView.addMouseListener(this);
         }
         Main.pref.addPreferenceChangeListener(this);
         if (dialog != null) {
@@ -326,14 +302,10 @@ public class MissingGeometryPlugin extends Plugin
     }
 
     private void updateSelectedData(final Tile tile, final List<Comment> comments) {
-        SwingUtilities.invokeLater(new Runnable() {
-
-            @Override
-            public void run() {
-                dialog.updateData(tile, comments);
-                layer.updateSelectedTile(tile);
-                Main.map.repaint();
-            }
+        SwingUtilities.invokeLater(() -> {
+            dialog.updateData(tile, comments);
+            layer.updateSelectedTile(tile);
+            layer.invalidate();
         });
     }
 }

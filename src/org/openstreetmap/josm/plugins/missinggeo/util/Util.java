@@ -17,10 +17,12 @@ package org.openstreetmap.josm.plugins.missinggeo.util;
 
 import java.awt.Point;
 import java.util.List;
-import org.openstreetmap.josm.Main;
+
 import org.openstreetmap.josm.data.Bounds;
 import org.openstreetmap.josm.data.coor.EastNorth;
 import org.openstreetmap.josm.data.coor.LatLon;
+import org.openstreetmap.josm.gui.MainApplication;
+import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.plugins.missinggeo.argument.BoundingBox;
 import org.openstreetmap.josm.plugins.missinggeo.entity.Tile;
@@ -98,7 +100,7 @@ public final class Util {
      * @return an integer value
      */
     public static int zoom() {
-        final Bounds bounds = Main.map.mapView.getRealBounds();
+        final Bounds bounds = MainApplication.getMap().mapView.getRealBounds();
         return ((int) Math.min(MAX_ZOOM, Math.max(MIN_ZOOM,
                 Math.round(Math.floor(Math.log(TILE_SIZE / bounds.asRect().height) / Math.log(2))))));
     }
@@ -122,13 +124,14 @@ public final class Util {
     }
 
     private static LatLon pointToLatLon(final Point point) {
-        final int width = Main.map.mapView.getWidth();
-        final int height = Main.map.mapView.getHeight();
-        final EastNorth center = Main.map.mapView.getCenter();
-        final double scale = Main.map.mapView.getScale();
+        MapFrame map = MainApplication.getMap();
+        final int width = map.mapView.getWidth();
+        final int height = map.mapView.getHeight();
+        final EastNorth center = map.mapView.getCenter();
+        final double scale = map.mapView.getScale();
         final EastNorth eastNorth = new EastNorth(center.east() + (point.getX() - width / 2.0) * scale,
                 center.north() - (point.getY() - height / 2.0) * scale);
-        return Main.map.mapView.getProjection().eastNorth2latlon(eastNorth);
+        return map.mapView.getProjection().eastNorth2latlon(eastNorth);
     }
 
     private static double tile2lat(final int y) {

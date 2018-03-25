@@ -18,6 +18,7 @@ package org.openstreetmap.josm.plugins.missinggeo.util.pref;
 import java.util.ArrayList;
 import java.util.List;
 import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.data.StructUtils;
 import org.openstreetmap.josm.plugins.missinggeo.argument.ClusterFilter;
 import org.openstreetmap.josm.plugins.missinggeo.argument.SearchFilter;
 import org.openstreetmap.josm.plugins.missinggeo.argument.TileFilter;
@@ -71,7 +72,7 @@ public final class PreferenceManager {
      */
     public <T extends SearchFilter> SearchFilter loadSearchFilter(final Class<T> filterType) {
         final Status status = loadStatusFilter();
-        final List<TypeEntry> entries = Main.pref.getListOfStructs(Keys.TYPE, TypeEntry.class);
+        final List<TypeEntry> entries = StructUtils.getListOfStructs(Main.pref, Keys.TYPE, TypeEntry.class);
         List<Type> types = null;
         if (entries != null && !entries.isEmpty()) {
             types = new ArrayList<>();
@@ -107,7 +108,7 @@ public final class PreferenceManager {
      * @param value a boolean value
      */
     public void saveErrorSupressFlag(final boolean value) {
-        Main.pref.put(Keys.ERROR_SUPPRESS, value);
+        Main.pref.putBoolean(Keys.ERROR_SUPPRESS, value);
     }
 
     /**
@@ -147,7 +148,7 @@ public final class PreferenceManager {
                     entries.add(new TypeEntry(type));
                 }
             }
-            Main.pref.putListOfStructs(Keys.TYPE, entries, TypeEntry.class);
+            StructUtils.putListOfStructs(Main.pref, Keys.TYPE, entries, TypeEntry.class);
 
             if (filter instanceof TileFilter) {
                 // tile filter

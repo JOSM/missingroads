@@ -24,6 +24,7 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Rectangle;
+
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
@@ -39,7 +40,8 @@ import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
-import org.openstreetmap.josm.Main;
+
+import org.openstreetmap.josm.gui.MainApplication;
 
 
 /**
@@ -56,8 +58,8 @@ public final class GuiBuilder {
     public static final Font BOLD_13 = new Font("Times New Roman", Font.BOLD, 13);
 
     /* font metrics */
-    public static final FontMetrics FM_PLAIN_12 = Main.map.mapView.getGraphics().getFontMetrics(PLAIN_12);
-    public static final FontMetrics FM_BOLD_12 = Main.map.mapView.getGraphics().getFontMetrics(BOLD_12);
+    public static final FontMetrics FM_PLAIN_12 = MainApplication.getMap().mapView.getGraphics().getFontMetrics(PLAIN_12);
+    public static final FontMetrics FM_BOLD_12 = MainApplication.getMap().mapView.getGraphics().getFontMetrics(BOLD_12);
 
     /**
      * Builds a new bordered layout panel that has a center and a south component.

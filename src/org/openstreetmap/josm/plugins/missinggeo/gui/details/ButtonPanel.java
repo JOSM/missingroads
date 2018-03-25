@@ -40,7 +40,7 @@ import org.openstreetmap.josm.plugins.missinggeo.util.cnf.IconConfig;
 class ButtonPanel extends JPanel {
 
     /* displays the filter dialog window */
-    private class DislayFilterDialog extends AbstractAction {
+    private static class DislayFilterDialog extends AbstractAction {
 
         private static final long serialVersionUID = 2260459345028599219L;
 

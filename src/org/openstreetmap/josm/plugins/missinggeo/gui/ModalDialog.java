@@ -18,8 +18,10 @@ package org.openstreetmap.josm.plugins.missinggeo.gui;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Image;
+
 import javax.swing.JDialog;
-import org.openstreetmap.josm.Main;
+
+import org.openstreetmap.josm.gui.MainApplication;
 
 
 /**
@@ -42,7 +44,7 @@ public abstract class ModalDialog extends JDialog {
         setLayout(new BorderLayout());
         setModal(true);
         setAlwaysOnTop(true);
-        setLocationRelativeTo(Main.map.mapView);
+        setLocationRelativeTo(MainApplication.getMap().mapView);
         setTitle(title);
         setIconImage(icon);
     }

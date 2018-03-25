@@ -15,7 +15,7 @@
  */
 package org.openstreetmap.josm.plugins.missinggeo.util.pref;
 
-import org.openstreetmap.josm.data.Preferences.pref;
+import org.openstreetmap.josm.data.StructUtils.StructEntry;
 import org.openstreetmap.josm.plugins.missinggeo.entity.Type;
 
 
@@ -29,7 +29,7 @@ public class TypeEntry {
 
     // preference entities must be declared public, otherwise JOSM preference loaded does not work!
 
-    @pref
+    @StructEntry
     private String name;
 
     public TypeEntry() {}
